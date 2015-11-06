@@ -13,7 +13,7 @@
     <Button
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Save"
+        android:text="@string/editButtonLabel"
         android:id="@+id/btnSave"
         android:onClick="onSave"
         android:layout_below="@+id/etUpdateItem"
@@ -35,7 +35,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:textAppearance="?android:attr/textAppearanceLarge"
-        android:text="Edit Item Below:"
+        android:text="@string/editItemLabel"
         android:id="@+id/tvUpdateItemLabel"
         android:layout_alignParentTop="true"
         android:layout_alignParentLeft="true"
