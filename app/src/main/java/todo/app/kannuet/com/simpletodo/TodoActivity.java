@@ -1,5 +1,6 @@
 package todo.app.kannuet.com.simpletodo;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
@@ -20,9 +21,10 @@ import java.util.ArrayList;
 
 public class TodoActivity extends AppCompatActivity {
 
-    ArrayList<String> items;
-    ArrayAdapter<String> itemsAdapter;
-    ListView lvItems;
+    private ArrayList<String> items;
+    private ArrayAdapter<String> itemsAdapter;
+    private ListView lvItems;
+    private final int REQUEST_CODE = 20;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -50,29 +52,16 @@ public class TodoActivity extends AppCompatActivity {
                     }
                 }
         );
+
+        lvItems.setOnItemClickListener(
+                new AdapterView.OnItemClickListener() {
+                    @Override
+                    public void onItemClick(AdapterView<?> adapter, View item, int pos, long id) {
+                        goToEdit(items.get(pos), pos);
+                    }
+                }
+        );
     }
-
-    private void readItems(){
-        File filesDir = getFilesDir();
-        File todoFile = new File(filesDir,"todo.txt");
-        try {
-            items = new ArrayList<String>(FileUtils.readLines(todoFile));
-        } catch (IOException e){
-            items = new ArrayList<String>();
-        }
-
-    }
-
-    private void writeItems() {
-        File filesDir = getFilesDir();
-        File todoFile = new File(filesDir,"todo.txt");
-        try {
-           FileUtils.writeLines(todoFile, items);
-        } catch (IOException e){
-            e.printStackTrace();
-        }
-    }
-
 
     public void onAddItem (View v) {
         EditText etNewItem = (EditText) findViewById(R.id.etNewItem);
@@ -82,6 +71,24 @@ public class TodoActivity extends AppCompatActivity {
         writeItems();
     }
 
+    public void goToEdit(String item, int position){
+        Intent i = new Intent(this,EditItemActivity.class);
+        i.putExtra("item", item);
+        i.putExtra("position", position);
+        startActivityForResult(i, REQUEST_CODE);
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (resultCode == RESULT_OK && requestCode == REQUEST_CODE) {
+            int position = data.getIntExtra("position",0);
+            String updateItem = data.getExtras().getString("updateItem");
+            items.remove(position);
+            items.add(position,updateItem);
+            itemsAdapter.notifyDataSetChanged();
+            writeItems();
+        }
+    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -103,5 +110,26 @@ public class TodoActivity extends AppCompatActivity {
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    private void readItems(){
+        File filesDir = getFilesDir();
+        File todoFile = new File(filesDir,"todo.txt");
+        try {
+            items = new ArrayList<>(FileUtils.readLines(todoFile));
+        } catch (IOException e){
+            items = new ArrayList<>();
+        }
+
+    }
+
+    private void writeItems() {
+        File filesDir = getFilesDir();
+        File todoFile = new File(filesDir,"todo.txt");
+        try {
+            FileUtils.writeLines(todoFile, items);
+        } catch (IOException e){
+            e.printStackTrace();
+        }
     }
 }
